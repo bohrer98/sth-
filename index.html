@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Convite pra Sthéfani 💌</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Playfair Display', serif;
+      background: linear-gradient(135deg, #fdf6f0, #f5e4dc);
+      color: #3e3e3e;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    h1, h2 {
+      text-align: center;
+      font-family: 'Great Vibes', cursive;
+      color: #b85c5c;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .btn {
+      padding: 1rem 2rem;
+      background: #d88c9a;
+      border: none;
+      border-radius: 2rem;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .btn:hover {
+      background: #c27586;
+    }
+    .selected {
+      background: #f2c6c2;
+      color: #5a2a2a;
+      box-shadow: 0 0 12px #f2c6c2;
+    }
+    .hidden {
+      display: none;
+    }
+    input[type="text"], input[type="date"] {
+      margin-top: 1rem;
+      padding: 0.7rem;
+      border-radius: 1rem;
+      border: 1px solid #d8b6a4;
+      width: 80%;
+      max-width: 300px;
+      font-family: 'Playfair Display', serif;
+    }
+    .footer-nav {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    button:disabled {
+      background-color: #ddd;
+      cursor: not-allowed;
+    }
+    @media (max-width: 600px) {
+      .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+      }
+      input[type="text"] {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="page1">
+    <h1>Doutora Sthé... agora que a era do medo acabou</h1>
+    <p style="text-align: center; margin: 1rem 0 2rem; font-family: 'Playfair Display', serif; font-size: 1.1rem;">
+      posso dizer: apaixonei no teu sorriso. Rindo de nervoso? Sim, mas falando sério. E mesmo que pareça loucura eu achar que tenho chance... fiz esse site pra te fazer um convite 💌
+    </p>
+    <div class="footer-nav">
+      <button class="btn" onclick="nextPage('page1', 'page2')">Próximo ➜</button>
+    </div>
+  </div>
+
+  <div id="page2" class="hidden">
+    <h2>Escolha o lugar para jantar</h2>
+    <div class="button-grid" id="jantar-buttons">
+      <button class="btn" onclick="selectOption('jantar', this)">Noz Moscada Cozinha Afetiva</button>
+      <button class="btn" onclick="selectOption('jantar', this)">La Mafia Trattoria</button>
+      <button class="btn" onclick="selectOption('jantar', this)">Boni Sushi</button>
+      <button class="btn" onclick="selectOption('jantar', this)">Restaurante Armazém</button>
+      <button class="btn" onclick="selectOption('jantar', this)">Cabanas Recanto Catarina (com jantar preparado por mim)</button>
+      <button class="btn" onclick="selectOption('jantar', this, true)">Outro</button>
+    </div>
+    <input type="text" id="jantar-outro" class="hidden" placeholder="Escreva o lugar..." oninput="checkInput('jantar')" />
+    <div class="footer-nav">
+      <button class="btn" onclick="prevPage('page2', 'page1')">⬅ Voltar</button>
+      <button class="btn" id="btn-next-2" onclick="nextPage('page2', 'page3')" disabled>Próximo ➜</button>
+    </div>
+  </div>
+
+  <div id="page3" class="hidden">
+    <h2>Escolha a data do nosso encontro</h2>
+    <input type="date" id="data-encontro" min="" onchange="checkDateInput()" />
+    <div class="footer-nav">
+      <button class="btn" onclick="prevPage('page3', 'page2')">⬅ Voltar</button>
+      <button class="btn" id="btn-next-5" onclick="nextPage('page3', 'page4')" disabled>Próximo ➜</button>
+    </div>
+  </div>
+
+  <div id="page4" class="hidden">
+    <h2>Resumo do nosso convite</h2>
+    <p><strong>Jantar:</strong> <span id="resumo-jantar"></span></p>
+    <p><strong>Data:</strong> <span id="resumo-data"></span></p>
+    <p style="text-align:center; margin-top: 1rem; font-size: 1.1rem;">
+      Mal posso esperar pelo nosso encontro! <br>
+      <span id="countdown"></span>
+    </p>
+    <div class="footer-nav">
+      <button class="btn" onclick="prevPage('page4', 'page3')">⬅ Voltar</button>
+    </div>
+  </div>
+
+  <script>
+    let selections = { jantar: null, data: null };
+    const dateInput = document.getElementById('data-encontro');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+
+    function selectOption(group, btn, isOutro = false) {
+      const buttons = document.querySelectorAll(`#${group}-buttons .btn`);
+      buttons.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+
+      if (isOutro) {
+        document.getElementById(`${group}-outro`).classList.remove('hidden');
+        selections[group] = '';
+      } else {
+        document.getElementById(`${group}-outro`).classList.add('hidden');
+        selections[group] = btn.textContent;
+      }
+      checkInput(group);
+    }
+
+    function checkInput(group) {
+      const btnNext = document.getElementById(`btn-next-${group === 'jantar' ? 2 : 5}`);
+      const outroInput = document.getElementById(`${group}-outro`);
+      if (selections[group] === '') {
+        if (outroInput.value.trim() !== '') {
+          selections[group] = outroInput.value.trim();
+          btnNext.disabled = false;
+        } else {
+          btnNext.disabled = true;
+        }
+      } else if (selections[group]) {
+        btnNext.disabled = false;
+      } else {
+        btnNext.disabled = true;
+      }
+    }
+
+    function checkDateInput() {
+      const val = dateInput.value;
+      const btnNext = document.getElementById('btn-next-5');
+      if (val) {
+        selections.data = val;
+        btnNext.disabled = false;
+      } else {
+        selections.data = null;
+        btnNext.disabled = true;
+      }
+    }
+
+    function nextPage(currentId, nextId) {
+      if (currentId === 'page3') {
+        if (!selections.data) {
+          alert('Escolha uma data válida.');
+          return;
+        }
+        updateResumo();
+      } else if (currentId === 'page2' && !selections.jantar) {
+        alert('Escolha um lugar para jantar.');
+        return;
+      }
+      document.getElementById(currentId).classList.add('hidden');
+      document.getElementById(nextId).classList.remove('hidden');
+      window.scrollTo(0, 0);
+      if (nextId === 'page4') startCountdown();
+    }
+
+    function prevPage(currentId, prevId) {
+      document.getElementById(currentId).classList.add('hidden');
+      document.getElementById(prevId).classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    function updateResumo() {
+      document.getElementById('resumo-jantar').textContent = selections.jantar;
+      document.getElementById('resumo-data').textContent = new Date(selections.data).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+
+    function startCountdown() {
+      const countdownEl = document.getElementById('countdown');
+      function updateCountdown() {
+        const now = new Date();
+        const eventDate = new Date(selections.data);
+        const diff = eventDate - now;
+        if (diff <= 0) {
+          countdownEl.textContent = \"Hoje é o grande dia! 🥳\";
+          clearInterval(interval);
+          return;
+        }
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        countdownEl.textContent = `${days} dia(s), ${hours} hora(s) e ${minutes} minuto(s) para nosso encontro!`;
+      }
+      updateCountdown();
+      const interval = setInterval(updateCountdown, 60000);
+    }
+  </script>
+</body>
+</html>
